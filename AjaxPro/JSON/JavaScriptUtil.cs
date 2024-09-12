@@ -1,7 +1,7 @@
 /*
  * JavaScriptUtil.cs
  * 
- * Copyright © 2007 Michael Schwarz (http://www.ajaxpro.info).
+ * Copyright Â© 2023 Michael Schwarz (http://www.ajaxpro.info).
  * All Rights Reserved.
  * 
  * Permission is hereby granted, free of charge, to any person 
@@ -44,6 +44,7 @@ using System;
 using System.Xml;
 using System.Text;
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace AjaxPro
 {
@@ -52,6 +53,8 @@ namespace AjaxPro
 	/// </summary>
 	public sealed class JavaScriptUtil
 	{
+		private static readonly Regex r = new Regex(@"\w+|\W+", System.Text.RegularExpressions.RegexOptions.Compiled);
+
 		/// <summary>
 		/// Get the client-side JavaScript namespace script.
 		/// </summary>
@@ -395,7 +398,6 @@ namespace AjaxPro
 			//if (xpath == "" || xpath == "/")
 			//    xpath = n.Name;
 
-			System.Text.RegularExpressions.Regex r = new System.Text.RegularExpressions.Regex(@"\w+|\W+", System.Text.RegularExpressions.RegexOptions.Compiled);
 			JavaScriptObject o = new JavaScriptObject();
 
 			if (n.NodeType == XmlNodeType.Element)

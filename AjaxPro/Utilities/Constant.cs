@@ -1,7 +1,7 @@
 /*
  * Constant.cs
  * 
- * Copyright © 2007 Michael Schwarz (http://www.ajaxpro.info).
+ * Copyright Â© 2023 Michael Schwarz (http://www.ajaxpro.info).
  * All Rights Reserved.
  * 
  * Permission is hereby granted, free of charge, to any person 
@@ -26,6 +26,7 @@
 /*
  * MS	06-03-10	changed assembly version to correct version from assembly info
  * MS	06-04-04	fixed if external version is using different assembly name
+ * MS	23-05-10	fixed an issue with global timeout when using synchronous calls
  * 
  * 
  */
@@ -52,6 +53,6 @@ namespace AjaxPro
         /// <summary>
 		/// The assembly version.
 		/// </summary>
-        public const string AssemblyVersion = "21.10.27.1";
+        public const string AssemblyVersion = "23.5.25.1";
 	}
 }

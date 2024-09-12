@@ -1,5 +1,5 @@
 /*
- * AjaxEnumAttribute.cs
+ * MD5Helper.cs
  * 
  * Copyright © 2023 Michael Schwarz (http://www.ajaxpro.info).
  * All Rights Reserved.
@@ -23,22 +23,45 @@
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN 
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+/* 
+ * MS	07-04-12	changed MD5 compute hash (using BitConverter, now)
+ * MS	21-12-22	changed hash algorithm from MD5 to SHA256
+ * 
+ */
 using System;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace AjaxPro
 {
-    /// <summary>
-    /// AJAX Enumeration Attribute class
-    /// </summary>
-	[AttributeUsage(AttributeTargets.Class)]
-	[Obsolete("The recommended alternative is AjaxPro.AjaxNamespaceAttribute.", true)]
-	public class AjaxEnumAttribute : Attribute
+	/// <summary>
+	/// Provides methods to get a MD5 hash from a string or byte array.
+	/// </summary>
+	public class Hash5Helper
 	{
         /// <summary>
-        /// Initializes a new instance of the <see cref="AjaxEnumAttribute"/> class.
+        /// Gets the hash.
         /// </summary>
-		public AjaxEnumAttribute()
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+		public static string GetHash(string data)
 		{
+			byte[] b = System.Text.Encoding.Default.GetBytes(data);
+
+			return GetHash(b);
+		}
+
+        /// <summary>
+        /// Gets the hash.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+		public static string GetHash(byte[] data)
+		{
+			// This is one implementation of the abstract class MD5.
+			MD5 md5 = new MD5CryptoServiceProvider();
+
+			return BitConverter.ToString(new SHA256Managed().ComputeHash(data)).Replace("-", String.Empty);
 		}
 	}
 }

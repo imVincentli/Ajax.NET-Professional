@@ -1,7 +1,7 @@
 /*
  * JavaScriptDeserializer.cs
  * 
- * Copyright © 2007 Michael Schwarz (http://www.ajaxpro.info).
+ * Copyright © 2023 Michael Schwarz (http://www.ajaxpro.info).
  * All Rights Reserved.
  * 
  * Permission is hereby granted, free of charge, to any person 
@@ -37,13 +37,15 @@
  * MS	06-07-11	added generic method for DeserializeFromJson
  * MS	06-09-26	improved performance removing three-times cast
  * MS	21-10-27	added allowed customized types for JSON deserialization
- * 
+ * MS	21-11-22	changed error message when type is not allowed
+ * MS	21-11-29	added check for custom type deserialization
  * 
  */
 using System;
 using System.Text;
 using System.Reflection;
 using System.Collections;
+using System.Security;
 
 namespace AjaxPro
 {
@@ -145,27 +147,7 @@ namespace AjaxPro
 				if (type == null || type.IsAssignableFrom(t))
 				{
 					type = t;
-
-					if (AjaxPro.Utility.Settings.IsJsonDeserializationCustomTypesDenied)
-					{
-						bool isCustomTypeAllowed = false;
-
-						foreach (var s in AjaxPro.Utility.Settings.JsonDeserializationCustomTypesAllowed)
-							if ((s.EndsWith("*") && type.FullName.StartsWith(s.Substring(0, s.Length - 1), StringComparison.InvariantCultureIgnoreCase)) || s == type.FullName)
-							{
-								isCustomTypeAllowed = true;
-								break;
-							}
-
-						if (!isCustomTypeAllowed)
-							throw new System.Security.SecurityException("This cusomized type is not allowed as argument for this method.");
-					}
-					else
-					{
-						foreach (var s in AjaxPro.Utility.Settings.JsonDeserializationCustomTypesDenied)
-							if ((s.EndsWith("*") && type.FullName.StartsWith(s.Substring(0, s.Length -1), StringComparison.InvariantCultureIgnoreCase)) || s == type.FullName)
-								throw new System.Security.SecurityException("This cusomized type is not allowed as argument for this method.");
-					}
+					ThrowExceptionIfNotCustomTypeDeserializationAllowed(type);
 				}
 			}
 
@@ -226,6 +208,51 @@ namespace AjaxPro
 		}
 
 		#region Internal Methods
+
+		internal static void ThrowExceptionIfNotCustomTypeDeserializationAllowed(Type type)
+		{
+			SecurityException ex = null;
+			if (!IsCustomTypeDeserializationAllowed(type, out ex) && ex != null)
+				throw ex;
+		}
+
+		internal static bool IsCustomTypeDeserializationAllowed(Type type, out SecurityException ex)
+		{
+			ex = null;
+
+			// allow all primitive and basic types
+			if (type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type == typeof(TimeSpan) || type == typeof(decimal))
+				return true;
+
+			if (AjaxPro.Utility.Settings.IsCustomTypesDeserializationDisabled)
+			{
+				bool isCustomTypeAllowed = false;
+
+				foreach (var s in AjaxPro.Utility.Settings.JsonDeserializationCustomTypesAllowed)
+					if ((s.EndsWith("*") && type.FullName.StartsWith(s.Substring(0, s.Length - 1), StringComparison.InvariantCultureIgnoreCase)) || s == type.FullName)
+					{
+						isCustomTypeAllowed = true;
+						break;
+					}
+
+				if (!isCustomTypeAllowed)
+				{
+					ex = new SecurityException(AjaxPro.Utility.Settings.DebugEnabled ? "The type '" + type.Name + "' is not allowed to be deserialized." : "At least one type passed is not allowed to be deserialized.");
+					return false;
+				}
+			}
+			else
+			{
+				foreach (var s in AjaxPro.Utility.Settings.JsonDeserializationCustomTypesDenied)
+					if ((s.EndsWith("*") && type.FullName.StartsWith(s.Substring(0, s.Length - 1), StringComparison.InvariantCultureIgnoreCase)) || s == type.FullName)
+					{
+						ex = new SecurityException(AjaxPro.Utility.Settings.DebugEnabled ? "The type '" + type.Name + "' is not allowed to be deserialized." : "At least one type passed is not allowed to be deserialized.");
+						return false;
+					}
+			}
+
+			return true;
+		}
 
         /// <summary>
         /// Deserializes the custom object.

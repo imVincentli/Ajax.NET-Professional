@@ -1,7 +1,7 @@
 /*
  * TypeJavaScriptHandler.cs
  * 
- * Copyright © 2007 Michael Schwarz (http://www.ajaxpro.info).
+ * Copyright © 2023 Michael Schwarz (http://www.ajaxpro.info).
  * All Rights Reserved.
  * 
  * Permission is hereby granted, free of charge, to any person 
@@ -146,7 +146,7 @@ namespace AjaxPro
 			}
 
 			etag = type.AssemblyQualifiedName;
-			etag = MD5Helper.GetHash(System.Text.Encoding.Default.GetBytes(etag));
+			etag = Hash5Helper.GetHash(System.Text.Encoding.Default.GetBytes(etag));
 
 			DateTime now = DateTime.Now;
 			DateTime lastMod = new DateTime(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second); // .ToUniversalTime();
@@ -161,12 +161,7 @@ namespace AjaxPro
 			// Build the javascript source and save it to the current
 			// Application context.
 
-
 			string url = context.Request.ApplicationPath + (context.Request.ApplicationPath.EndsWith("/") ? "" : "/") + Utility.HandlerPath + "/" + AjaxPro.Utility.GetSessionUri() + path + Utility.HandlerExtension;
-
-
-
-
 
 			// find all methods that are able to be used with AjaxPro
 
